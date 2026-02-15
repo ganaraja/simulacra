@@ -5,6 +5,7 @@ const PERSONA_ICONS = {
   napoleon: '⚔️',
   gandhi: '🕊️',
   alexander: '👑',
+  arbitrator: '⚖️',
   summariser: '📋',
 };
 

@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Simulacra is a multi-agent debate system that orchestrates conversations between three historical personas (Napoleon, Gandhi, Alexander) and a neutral Summariser. The system uses Google's Agent Development Kit (ADK) for LLM orchestration and follows a tool-based architecture pattern.
+Simulacra is a multi-agent debate system that orchestrates conversations between three historical personas (Napoleon, Gandhi, Alexander), a neutral Arbitrator, and a Summariser. The system uses Google's Agent Development Kit (ADK) for LLM orchestration and follows a tool-based architecture pattern.
 
 ## High-Level Architecture
 
@@ -51,12 +51,14 @@ Simulacra is a multi-agent debate system that orchestrates conversations between
 │  │    • build_defence_prompt                                   │ │
 │  │    • build_exchange_prompt                                  │ │
 │  │    • build_reflection_prompt                                │ │
+│  │    • build_arbitration_prompt                               │ │
 │  │    • build_summary_prompt                                   │ │
 │  │  Recording:                                                 │ │
 │  │    • record_opening                                         │ │
 │  │    • record_defence                                         │ │
 │  │    • record_exchange_message                                │ │
 │  │    • record_reflection                                      │ │
+│  │    • record_arbitration                                     │ │
 │  │    • record_summary                                         │ │
 │  │  Phase Management:                                          │ │
 │  │    • advance_phase                                          │ │
@@ -66,11 +68,13 @@ Simulacra is a multi-agent debate system that orchestrates conversations between
 │  ┌────────────────────────▼───────────────────────────────────┐ │
 │  │                   Core Logic                                │ │
 │  │  Persona Module:                                            │ │
-│  │    • PersonaId enum (napoleon, gandhi, alexander, etc)     │ │
+│  │    • PersonaId enum (napoleon, gandhi, alexander,          │ │
+│  │      arbitrator, summariser)                                │ │
 │  │    • Persona class with philosophy and display info        │ │
 │  │    • Factory methods for each persona                      │ │
 │  │  Debate Module:                                             │ │
-│  │    • RoundPhase enum (opening, defence, exchange, etc)     │ │
+│  │    • RoundPhase enum (opening, defence, exchange,          │ │
+│  │      reflection, arbitration, summary, done)                │ │
 │  │    • DebateState: Full debate state with messages          │ │
 │  │    • DebateMessage: Individual message structure           │ │
 │  └─────────────────────────────────────────────────────────────┘ │
@@ -205,6 +209,9 @@ Initial State
     ↓ record_reflection (Napoleon)
     ↓ record_reflection (Gandhi)
     ↓ record_reflection (Alexander)
+    ↓ advance_phase("arbitration")
+[Arbitration Phase]
+    ↓ record_arbitration (Arbitrator)
     ↓ advance_phase("summary")
 [Summary Phase]
     ↓ record_summary (Summariser)
@@ -404,13 +411,14 @@ Final State
 
 ## Testing Architecture
 
-### Backend Tests (27 tests)
+### Backend Tests (30 tests)
 
-**Persona Tests** (5):
+**Persona Tests** (6):
 
 - Test persona factory methods
 - Test philosophy strings
-- Test debaters() excludes summariser
+- Test arbitrator persona
+- Test debaters() excludes summariser and arbitrator
 
 **DebateState Tests** (5):
 
@@ -419,11 +427,11 @@ Final State
 - Test opening/reflection storage
 - Test transcript generation
 
-**Tools Tests** (14):
+**Tools Tests** (16):
 
 - Test state creation
-- Test prompt building for each phase
-- Test recording for each phase
+- Test prompt building for each phase (including arbitration)
+- Test recording for each phase (including arbitration)
 - Test phase advancement
 
 **API Tests** (3):
@@ -432,7 +440,7 @@ Final State
 - Test debate run with mocked coordinator
 - Test 503 when ADK not installed
 
-### Frontend Tests (11 tests)
+### Frontend Tests (12 tests)
 
 **Component Tests**:
 

@@ -13,6 +13,7 @@ class RoundPhase(str, Enum):
     DEFENCE = "defence"
     EXCHANGE = "exchange"
     REFLECTION = "reflection"
+    ARBITRATION = "arbitration"
     SUMMARY = "summary"
     DONE = "done"
 
@@ -36,6 +37,7 @@ class DebateState(BaseModel):
     exchange_rounds: int = Field(default=0, ge=0)
     max_exchange_rounds: int = Field(default=4, ge=1)
     reflections: dict[str, str] = Field(default_factory=dict)  # persona_id -> reflection text
+    arbitration: str = Field(default="")  # Arbitrator's consensus
     summary: str = Field(default="")
 
     def add_message(self, author_id: PersonaId, author_name: str, content: str, phase: RoundPhase, round_index: int = 0) -> None:

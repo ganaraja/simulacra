@@ -30,6 +30,7 @@ def _state_from_dict(data: dict[str, Any]) -> DebateState:
         exchange_rounds=data.get("exchange_rounds", 0),
         max_exchange_rounds=data.get("max_exchange_rounds", 4),
         reflections=dict(data.get("reflections", {})),
+        arbitration=data.get("arbitration", ""),
         summary=data.get("summary", ""),
     )
 
@@ -52,6 +53,7 @@ def _state_to_dict(state: DebateState) -> dict[str, Any]:
         "exchange_rounds": state.exchange_rounds,
         "max_exchange_rounds": state.max_exchange_rounds,
         "reflections": dict(state.reflections),
+        "arbitration": state.arbitration,
         "summary": state.summary,
     }
 
@@ -249,6 +251,48 @@ def record_reflection(persona_id: str, reflection_text: str, state_dict: dict[st
     persona = Persona.get(pid)
     state.set_reflection(pid, reflection_text)
     state.add_message(pid, persona.name, reflection_text, RoundPhase.REFLECTION, 0)
+    return _state_to_dict(state)
+
+
+def build_arbitration_prompt(state_dict: dict[str, Any]) -> str:
+    """
+    Build the prompt for the Arbitrator to analyze and find consensus.
+
+    Args:
+        state_dict: Current state (all debate phases completed).
+
+    Returns:
+        Instruction for the Arbitrator LLM.
+    """
+    state = _state_from_dict(state_dict)
+    transcript = state.transcript_for_context(limit=100)
+    return (
+        "You are an impartial Arbitrator. Your role is to analyze all perspectives presented, "
+        "identify common ground, and guide toward a balanced consensus. "
+        "Review the debate between Napoleon, Gandhi, and Alexander. "
+        "Find areas of agreement, acknowledge valid points from each perspective, "
+        "and propose a balanced solution that respects all viewpoints. "
+        f"Full debate:\n\n{transcript}\n\n"
+        "Provide your arbitration (one paragraph): identify common ground, "
+        "acknowledge each perspective's merits, and propose a consensus path forward."
+    )
+
+
+def record_arbitration(arbitration_text: str, state_dict: dict[str, Any]) -> dict[str, Any]:
+    """
+    Record the Arbitrator's consensus and advance to summary phase.
+
+    Args:
+        arbitration_text: The arbitration content.
+        state_dict: Current state.
+
+    Returns:
+        Updated state dict with arbitration recorded.
+    """
+    state = _state_from_dict(state_dict)
+    state.arbitration = arbitration_text
+    persona = Persona.arbitrator()
+    state.add_message(persona.id, persona.name, arbitration_text, RoundPhase.ARBITRATION, 0)
     return _state_to_dict(state)
 
 

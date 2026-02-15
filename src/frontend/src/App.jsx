@@ -16,6 +16,7 @@ export default function App() {
     { author_id: 'napoleon', author_name: 'Napoleon', content: 'Hi, I am Napoleon Bonaparte. I believe in conquest for the greater good.', phase: 'greeting' },
     { author_id: 'gandhi', author_name: 'Gandhi', content: 'Hi, I am Mahatma Gandhi. I advocate for peace and non-violence.', phase: 'greeting' },
     { author_id: 'alexander', author_name: 'Alexander', content: 'Hi, I am Alexander the Great. Glory through conquest is my path.', phase: 'greeting' },
+    { author_id: 'arbitrator', author_name: 'Arbitrator', content: 'Hi, I am the Arbitrator. I will help find common ground and guide toward consensus.', phase: 'greeting' },
   ];
 
   const scrollToBottom = () => {
@@ -67,11 +68,6 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>Simulacra Debate</h1>
-        {error && (
-          <div className="run-section">
-            <p className="status error">{error}</p>
-          </div>
-        )}
       </header>
 
       <section className="chat-window" aria-label="Debate chat">
@@ -83,7 +79,7 @@ export default function App() {
             <>
               <DebateView state={{ messages: defaultMessages, summary: '' }} />
               <div className="chat-placeholder">
-                <p>🎭 Starting debate...</p>
+                <p>🎭 The debate will start in a while when the participants are ready...</p>
               </div>
             </>
           )}
@@ -91,8 +87,8 @@ export default function App() {
             <>
               <DebateView state={{ messages: defaultMessages, summary: '' }} />
               <div className="chat-placeholder">
-                <p>❌ Failed to start debate</p>
-                <p className="chat-hint">{error}</p>
+                <p>⏳ The debate will start in a while when the participants are ready...</p>
+                <p className="chat-hint">Please wait a moment.</p>
               </div>
             </>
           )}

@@ -19,6 +19,8 @@ from backend.tools.debate_tools import (
     record_exchange_message,
     build_reflection_prompt,
     record_reflection,
+    build_arbitration_prompt,
+    record_arbitration,
     build_summary_prompt,
     record_summary,
     advance_phase,
@@ -234,7 +236,16 @@ class DebateCoordinator:
             )
             await asyncio.sleep(1)  # Small delay between personas
 
-        # 5. Summary
+        # 5. Arbitration: find consensus
+        logger.info("Starting arbitration phase")
+        state = advance_phase(state, "arbitration")
+        await asyncio.sleep(2)  # Delay before starting new phase
+        
+        prompt = build_arbitration_prompt(state)
+        arbitration_text = await self._run_turn(prompt)
+        state = record_arbitration(arbitration_text.strip() or "(No arbitration)", state)
+
+        # 6. Summary
         logger.info("Starting summary phase")
         state = advance_phase(state, "summary")
         await asyncio.sleep(2)  # Delay before starting new phase

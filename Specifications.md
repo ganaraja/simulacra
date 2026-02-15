@@ -11,15 +11,17 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 | Napoleon   | Conqueror | Wants to conquer the world for benevolence. Believes a single kingdom eliminates wars between kingdoms.    |
 | Gandhi     | Pacifist  | Spartan life, peace through low expectations, non-violence.                                                |
 | Alexander  | Ambition  | Motivated by pure ambition. Greatness lies in conquest; wars and death are acceptable in pursuit of glory. |
+| Arbitrator | Neutral   | Provides balanced analysis of arguments without taking sides. Evaluates merit of each position.            |
 | Summariser | Neutral   | Summarises debate standings; does not advocate a position.                                                 |
 
 ## Debate Flow
 
 1. **Opening statements**: Each of the three debate agents gives a brief opening statement.
 2. **Defence round**: All openings are collected; each agent is asked to defend their position vigorously.
-3. **Exchange rounds**: The three agents interact with each other for 3–4 rounds.
+3. **Exchange rounds**: The three agents interact with each other for 1 round (configurable).
 4. **Reflection round**: Each is asked whether, in light of the discussion, they would change their position and how.
-5. **Summary**: The fourth agent (Summariser) summarises the standings.
+5. **Arbitration**: The Arbitrator provides a balanced analysis of all positions without taking sides.
+6. **Summary**: The Summariser summarises the debate standings.
 
 ## Technical Requirements
 

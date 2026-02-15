@@ -1,6 +1,6 @@
 # Simulacra
 
-Multi-agent debate system: **Napoleon**, **Gandhi**, **Alexander**, and **Summariser**. Built with Google ADK and FastMCP.
+Multi-agent debate system: **Napoleon**, **Gandhi**, **Alexander**, **Arbitrator**, and **Summariser**. Built with Google ADK and FastMCP.
 
 ## Quick Start
 
@@ -34,8 +34,8 @@ From repo root:
 
 This runs all backend (pytest) and frontend (Jest) tests. Fix any failures before committing.
 
-**Backend tests** (27): `PYTHONPATH=src python3 -m pytest tests/ -v`  
-**Frontend tests** (11): `cd src/frontend && npm run test`
+**Backend tests** (30): `PYTHONPATH=src python3 -m pytest tests/ -v`  
+**Frontend tests** (12): `cd src/frontend && npm run test`
 
 ### System Verification
 
@@ -92,7 +92,7 @@ npm run dev
 1. Set `GOOGLE_API_KEY` and install backend deps including `google-adk`.
 2. Start backend: `PYTHONPATH=src uvicorn backend.app.main:app --host 127.0.0.1 --port 8000`
 3. Start frontend: `cd src/frontend && npm run dev`
-4. Open http://localhost:3000 and click **Run debate**.
+4. Open http://localhost:3000 - the debate starts automatically with greeting messages from all participants.
 
 ## MCP server (optional)
 

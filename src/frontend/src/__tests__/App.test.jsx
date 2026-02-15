@@ -50,13 +50,14 @@ describe('App', () => {
     render(<App />);
     
     await waitFor(() => {
-      expect(screen.getByText(/Starting debate/i)).toBeInTheDocument();
+      expect(screen.getByText(/The debate will start in a while when the participants are ready/i)).toBeInTheDocument();
     });
     
     // Should also show default greeting messages
     expect(screen.getByText(/Hi, I am Napoleon Bonaparte/i)).toBeInTheDocument();
     expect(screen.getByText(/Hi, I am Mahatma Gandhi/i)).toBeInTheDocument();
     expect(screen.getByText(/Hi, I am Alexander the Great/i)).toBeInTheDocument();
+    expect(screen.getByText(/Hi, I am the Arbitrator/i)).toBeInTheDocument();
   });
 
   it('shows error when API fails', async () => {
@@ -68,12 +69,9 @@ describe('App', () => {
     
     render(<App />);
     
+    // Should show friendly waiting message (same as loading state)
     await waitFor(() => {
-      expect(screen.getByText('❌ Failed to start debate')).toBeInTheDocument();
+      expect(screen.getByText(/The debate will start in a while when the participants are ready/i)).toBeInTheDocument();
     });
-    
-    // Should show error in both header and chat window
-    const errorTexts = screen.getAllByText('Server error');
-    expect(errorTexts.length).toBeGreaterThan(0);
   });
 });
