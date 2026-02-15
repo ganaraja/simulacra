@@ -15,25 +15,35 @@ body {
 }
 
 .app {
+  display: flex;
+  flex-direction: column;
   max-width: 720px;
   margin: 0 auto;
-  padding: 1.5rem;
+  height: 100vh;
+  padding: 0;
 }
 
-.app h1 {
-  font-size: 1.5rem;
+.app-header {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #363b54;
+  background: #16161e;
+}
+
+.app-header h1 {
+  font-size: 1.35rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin: 0 0 0.75rem 0;
   color: #7aa2f7;
 }
 
 .run-section {
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
 .run-section button {
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
   background: #7aa2f7;
   color: #1a1b26;
   border: none;
@@ -52,13 +62,46 @@ body {
 }
 
 .status {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
   color: #a9b1d6;
 }
 
 .status.error {
   color: #f7768e;
+}
+
+/* Chat window: scrollable area for all debate messages */
+.chat-window {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-window-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chat-placeholder {
+  color: #565f89;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.chat-placeholder p {
+  margin: 0;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .messages {
@@ -91,6 +134,7 @@ body {
   justify-content: center;
   font-size: 1.25rem;
   flex-shrink: 0;
+  background: #1a1b26;
 }
 
 .message-body {
@@ -119,7 +163,7 @@ body {
 }
 
 .summary-block {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding: 1rem;
   background: #16161e;
   border-radius: 10px;

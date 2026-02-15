@@ -10,6 +10,7 @@ from typing import Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.agent import DebateCoordinator
 
@@ -41,6 +42,18 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc: Exception):
+    """Ensure uncaught errors return JSON so frontend never sees HTML Internal Server Error."""
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail if isinstance(exc.detail, str) else str(exc.detail)},
+        )
+    detail = str(exc) if str(exc) else repr(exc)
+    return JSONResponse(status_code=500, content={"detail": detail})
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     """Health check."""
@@ -57,8 +70,11 @@ async def run_debate(max_exchange_rounds: int = 4) -> dict[str, Any]:
         state = await coordinator.run_debate()
         return state
     except RuntimeError as e:
-        if "not installed" in str(e).lower() or "adk" in str(e).lower():
-            raise HTTPException(status_code=503, detail=str(e)) from e
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        msg = str(e)
+        if "not installed" in msg.lower() or "adk" in msg.lower():
+            raise HTTPException(status_code=503, detail=msg) from e
+        raise HTTPException(status_code=500, detail=msg) from e
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
