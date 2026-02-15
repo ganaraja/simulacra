@@ -1,0 +1,139 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #1a1b26;
+  color: #c0caf5;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.app h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #7aa2f7;
+}
+
+.run-section {
+  margin-bottom: 1.5rem;
+}
+
+.run-section button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background: #7aa2f7;
+  color: #1a1b26;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.run-section button:hover:not(:disabled) {
+  background: #89b4fa;
+}
+
+.run-section button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #a9b1d6;
+}
+
+.status.error {
+  color: #f7768e;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  background: #24283b;
+  border-radius: 10px;
+  border-left: 4px solid #7aa2f7;
+}
+
+.message.napoleon { border-left-color: #bb9af7; }
+.message.gandhi { border-left-color: #9ece6a; }
+.message.alexander { border-left-color: #f7768e; }
+.message.summariser { border-left-color: #e0af68; }
+
+.message-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.message-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #c0caf5;
+}
+
+.message-phase {
+  font-size: 0.75rem;
+  color: #565f89;
+  margin-bottom: 0.35rem;
+}
+
+.message-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.summary-block {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #16161e;
+  border-radius: 10px;
+  border: 1px solid #e0af68;
+}
+
+.summary-block h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #e0af68;
+}
+
+.summary-block p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
