@@ -8,7 +8,15 @@ export default function App() {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [autoStarted, setAutoStarted] = useState(false);
   const chatEndRef = useRef(null);
+
+  // Default greeting messages
+  const defaultMessages = [
+    { author_id: 'napoleon', author_name: 'Napoleon', content: 'Hi, I am Napoleon Bonaparte. I believe in conquest for the greater good.', phase: 'greeting' },
+    { author_id: 'gandhi', author_name: 'Gandhi', content: 'Hi, I am Mahatma Gandhi. I advocate for peace and non-violence.', phase: 'greeting' },
+    { author_id: 'alexander', author_name: 'Alexander', content: 'Hi, I am Alexander the Great. Glory through conquest is my path.', phase: 'greeting' },
+  ];
 
   const scrollToBottom = () => {
     const el = chatEndRef.current;
@@ -19,12 +27,20 @@ export default function App() {
     if (state?.messages?.length) scrollToBottom();
   }, [state?.messages?.length]);
 
+  // Auto-start debate on component mount
+  useEffect(() => {
+    if (!autoStarted) {
+      setAutoStarted(true);
+      runDebate();
+    }
+  }, [autoStarted]);
+
   async function runDebate() {
     setLoading(true);
     setError(null);
     setState(null);
     try {
-      const res = await fetch(`${API_BASE}/debate/run`, {
+      const res = await fetch(`${API_BASE}/debate/run?max_exchange_rounds=1`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -51,21 +67,34 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>Simulacra Debate</h1>
-        <div className="run-section">
-          <button onClick={runDebate} disabled={loading}>
-            {loading ? 'Running debate…' : 'Run debate'}
-          </button>
-          {error && <p className="status error">{error}</p>}
-          {loading && !error && <p className="status">Running debate (this may take a minute)…</p>}
-        </div>
+        {error && (
+          <div className="run-section">
+            <p className="status error">{error}</p>
+          </div>
+        )}
       </header>
 
       <section className="chat-window" aria-label="Debate chat">
         <div className="chat-window-inner">
-          {!state && !loading && (
-            <div className="chat-placeholder">
-              <p>Click &ldquo;Run debate&rdquo; to start. The chat will show openings, defences, exchange rounds, reflections, and a summary.</p>
-            </div>
+          {!state && !loading && !error && (
+            <DebateView state={{ messages: defaultMessages, summary: '' }} />
+          )}
+          {!state && loading && (
+            <>
+              <DebateView state={{ messages: defaultMessages, summary: '' }} />
+              <div className="chat-placeholder">
+                <p>🎭 Starting debate...</p>
+              </div>
+            </>
+          )}
+          {!state && !loading && error && (
+            <>
+              <DebateView state={{ messages: defaultMessages, summary: '' }} />
+              <div className="chat-placeholder">
+                <p>❌ Failed to start debate</p>
+                <p className="chat-hint">{error}</p>
+              </div>
+            </>
           )}
           {state && <DebateView state={state} />}
           <div ref={chatEndRef} />

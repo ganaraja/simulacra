@@ -6,12 +6,12 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 
 ## Personas
 
-| Agent     | Persona   | Philosophy |
-|----------|-----------|------------|
-| Napoleon | Conqueror | Wants to conquer the world for benevolence. Believes a single kingdom eliminates wars between kingdoms. |
-| Gandhi   | Pacifist  | Spartan life, peace through low expectations, non-violence. |
-| Alexander| Ambition  | Motivated by pure ambition. Greatness lies in conquest; wars and death are acceptable in pursuit of glory. |
-| Summariser | Neutral | Summarises debate standings; does not advocate a position. |
+| Agent      | Persona   | Philosophy                                                                                                 |
+| ---------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| Napoleon   | Conqueror | Wants to conquer the world for benevolence. Believes a single kingdom eliminates wars between kingdoms.    |
+| Gandhi     | Pacifist  | Spartan life, peace through low expectations, non-violence.                                                |
+| Alexander  | Ambition  | Motivated by pure ambition. Greatness lies in conquest; wars and death are acceptable in pursuit of glory. |
+| Summariser | Neutral   | Summarises debate standings; does not advocate a position.                                                 |
 
 ## Debate Flow
 
@@ -51,6 +51,15 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 - Treating tools as databases instead of abstractions.
 - Dumping raw API responses into agent context.
 - Overusing prompts to compensate for bad tool design.
+- Committing API keys or credentials to version control.
+- Using leaked or compromised API keys.
+
+### Security Considerations
+
+- **API Key Management**: Never commit real API keys. Use environment variables and .env files (excluded from git).
+- **CORS Configuration**: Properly configure allowed origins to prevent unauthorized access.
+- **Error Messages**: Return JSON errors (not HTML) with helpful but not sensitive information.
+- **Environment Isolation**: Use .venv for Python dependencies to avoid conflicts.
 
 ### Dependency Management
 
@@ -70,3 +79,13 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 ## Document History
 
 - Initial version: multi-agent debate flow, ADK, FastMCP, React, uv, pytest, Jest/RTL.
+- Updated: Added security considerations, CORS configuration, error handling strategy.
+- Added comprehensive documentation: ARCHITECTURE.md, SECURITY.md, troubleshooting in README.md.
+
+## Additional Documentation
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Detailed system architecture, design patterns, and component interactions.
+- **[SECURITY.md](./SECURITY.md)**: Security best practices, API key management, and incident response.
+- **[RATE_LIMITING.md](./RATE_LIMITING.md)**: Rate limiting mitigation strategies, retry logic, and best practices.
+- **[README.md](./README.md)**: Setup instructions, running the application, and troubleshooting.
+- **[.kiro/specs/simulacra-improvements/](./kiro/specs/simulacra-improvements/)**: Detailed requirements, design, and implementation tasks.

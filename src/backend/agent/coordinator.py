@@ -5,6 +5,8 @@ Does NOT import core logic directly - only uses the tools module.
 
 from typing import Any
 import asyncio
+import logging
+import time
 
 # Tools only - no core import
 from backend.tools.debate_tools import (
@@ -40,6 +42,11 @@ except ImportError:
 DEBATER_IDS = ["napoleon", "gandhi", "alexander"]
 DEFAULT_MODEL = "gemini-2.0-flash"
 APP_NAME = "simulacra_debate"
+MAX_RETRIES = 3
+INITIAL_RETRY_DELAY = 3.0  # seconds
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def _extract_final_text(events) -> str:
@@ -98,8 +105,20 @@ class DebateCoordinator:
         self._session_counter += 1
         return f"debate_session_{self._session_counter}"
 
-    async def _run_turn(self, prompt: str) -> str:
-        """Run one LLM turn with a fresh session so context is only the current prompt."""
+    async def _run_turn(self, prompt: str, max_retries: int = MAX_RETRIES) -> str:
+        """
+        Run one LLM turn with a fresh session and retry logic for rate limiting.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            max_retries: Maximum number of retry attempts
+            
+        Returns:
+            The LLM response text
+            
+        Raises:
+            Exception: If all retries are exhausted
+        """
         session_id = self._next_session_id()
         try:
             await self._session_service.create_session(
@@ -109,55 +128,120 @@ class DebateCoordinator:
             )
         except Exception:
             pass
-        return await _run_agent_for_prompt(
-            self._runner, self._user_id, session_id, prompt
-        )
+        
+        last_exception = None
+        for attempt in range(max_retries):
+            try:
+                return await _run_agent_for_prompt(
+                    self._runner, self._user_id, session_id, prompt
+                )
+            except Exception as e:
+                last_exception = e
+                error_str = str(e)
+                
+                # Check if it's a rate limit error (429 RESOURCE_EXHAUSTED)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    # Extract retry delay from error message if available
+                    retry_delay = INITIAL_RETRY_DELAY * (2 ** attempt)  # Exponential backoff
+                    
+                    # Try to parse the suggested retry delay from the error
+                    if "retry in" in error_str.lower():
+                        try:
+                            import re
+                            match = re.search(r'retry in (\d+\.?\d*)s', error_str.lower())
+                            if match:
+                                suggested_delay = float(match.group(1))
+                                retry_delay = max(retry_delay, suggested_delay)
+                        except Exception:
+                            pass
+                    
+                    if attempt < max_retries - 1:
+                        logger.warning(
+                            f"Rate limit hit (attempt {attempt + 1}/{max_retries}). "
+                            f"Retrying in {retry_delay:.1f}s..."
+                        )
+                        await asyncio.sleep(retry_delay)
+                        continue
+                    else:
+                        logger.error(f"Rate limit exceeded after {max_retries} attempts")
+                        raise RuntimeError(
+                            f"Rate limit exceeded. Please wait a few minutes and try again. "
+                            f"For more info: https://ai.google.dev/gemini-api/docs/rate-limits"
+                        ) from e
+                else:
+                    # Non-rate-limit error, raise immediately
+                    raise
+        
+        # If we get here, all retries failed
+        raise last_exception or RuntimeError("Failed to get LLM response")
 
     async def run_debate(self) -> dict[str, Any]:
         """
         Run the full debate: opening -> defence -> exchange (3-4 rounds) -> reflection -> summary.
         Returns the final state dict.
+        
+        Includes delays between phases to avoid rate limiting.
         """
         state = create_initial_state(max_exchange_rounds=self.max_exchange_rounds)
 
         # 1. Opening statements
+        logger.info("Starting opening statements phase")
         for persona_id in DEBATER_IDS:
             prompt = build_opening_prompt(persona_id)
             text = await self._run_turn(prompt)
             state = record_opening(persona_id, text.strip() or "(No opening)", state)
+            await asyncio.sleep(1)  # Small delay between personas
 
         # 2. Advance to defence; collect openings and ask each to defend
+        logger.info("Starting defence phase")
         state = advance_phase(state, "defence")
+        await asyncio.sleep(2)  # Delay before starting new phase
+        
         for persona_id in DEBATER_IDS:
             prompt = build_defence_prompt(persona_id, state)
             text = await self._run_turn(prompt)
             state = record_defence(persona_id, text.strip() or "(No defence)", state)
+            await asyncio.sleep(1)  # Small delay between personas
 
         # 3. Exchange rounds (3-4 rounds, each debater speaks per round)
+        logger.info(f"Starting exchange phase ({self.max_exchange_rounds} rounds)")
         state = advance_phase(state, "exchange")
+        await asyncio.sleep(2)  # Delay before starting new phase
+        
         for r in range(1, self.max_exchange_rounds + 1):
+            logger.info(f"Exchange round {r}/{self.max_exchange_rounds}")
             for persona_id in DEBATER_IDS:
                 prompt = build_exchange_prompt(persona_id, state, r)
                 text = await self._run_turn(prompt)
                 state = record_exchange_message(
                     persona_id, text.strip() or "(No response)", state, r
                 )
+                await asyncio.sleep(1)  # Small delay between personas
             if r < self.max_exchange_rounds:
                 state = advance_exchange_round(state)
+                await asyncio.sleep(2)  # Delay between rounds
 
         # 4. Reflection: would you change your position?
+        logger.info("Starting reflection phase")
         state = advance_phase(state, "reflection")
+        await asyncio.sleep(2)  # Delay before starting new phase
+        
         for persona_id in DEBATER_IDS:
             prompt = build_reflection_prompt(persona_id, state)
             text = await self._run_turn(prompt)
             state = record_reflection(
                 persona_id, text.strip() or "(No reflection)", state
             )
+            await asyncio.sleep(1)  # Small delay between personas
 
         # 5. Summary
+        logger.info("Starting summary phase")
         state = advance_phase(state, "summary")
+        await asyncio.sleep(2)  # Delay before starting new phase
+        
         prompt = build_summary_prompt(state)
         summary_text = await self._run_turn(prompt)
         state = record_summary(summary_text.strip() or "(No summary)", state)
-
+        
+        logger.info("Debate completed successfully")
         return state

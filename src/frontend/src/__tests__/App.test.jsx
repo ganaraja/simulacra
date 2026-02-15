@@ -8,38 +8,72 @@ describe('App', () => {
     global.fetch = jest.fn();
   });
 
-  it('renders title and run button', () => {
-    render(<App />);
-    expect(screen.getByText('Simulacra Debate')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /run debate/i })).toBeInTheDocument();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('calls API and shows messages on success', async () => {
-    const user = userEvent.setup();
+  it('renders title', () => {
+    // Mock fetch to prevent auto-start from actually running
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ messages: [], summary: '' }),
+    });
+    
+    render(<App />);
+    expect(screen.getByText('Simulacra Debate')).toBeInTheDocument();
+  });
+
+  it('auto-starts debate on mount', async () => {
     global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         messages: [
-          { author_id: 'napoleon', author_name: 'Napoleon', content: 'Test opening.', phase: 'opening' },
+          { author_id: 'napoleon', author_name: 'Napoleon', content: 'Auto-started opening.', phase: 'opening' },
         ],
-        summary: 'Test summary.',
+        summary: 'Auto-started summary.',
       }),
     });
+    
     render(<App />);
-    await user.click(screen.getByRole('button', { name: /run debate/i }));
+    
+    // Wait for auto-start to complete
     await waitFor(() => {
-      expect(screen.getByText('Test opening.')).toBeInTheDocument();
+      expect(screen.getByText('Auto-started opening.')).toBeInTheDocument();
     });
-    expect(screen.getByText('Test summary.')).toBeInTheDocument();
+    expect(screen.getByText('Auto-started summary.')).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading message while debate runs', async () => {
+    global.fetch.mockImplementationOnce(() => new Promise(() => {})); // Never resolves
+    
+    render(<App />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Starting debate/i)).toBeInTheDocument();
+    });
+    
+    // Should also show default greeting messages
+    expect(screen.getByText(/Hi, I am Napoleon Bonaparte/i)).toBeInTheDocument();
+    expect(screen.getByText(/Hi, I am Mahatma Gandhi/i)).toBeInTheDocument();
+    expect(screen.getByText(/Hi, I am Alexander the Great/i)).toBeInTheDocument();
   });
 
   it('shows error when API fails', async () => {
-    const user = userEvent.setup();
-    global.fetch.mockResolvedValueOnce({ ok: false, text: async () => 'Server error' });
-    render(<App />);
-    await user.click(screen.getByRole('button', { name: /run debate/i }));
-    await waitFor(() => {
-      expect(screen.getByText(/HTTP 500|Server error|Failed/)).toBeInTheDocument();
+    global.fetch.mockResolvedValueOnce({ 
+      ok: false, 
+      status: 500,
+      text: async () => JSON.stringify({ detail: 'Server error' })
     });
+    
+    render(<App />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('❌ Failed to start debate')).toBeInTheDocument();
+    });
+    
+    // Should show error in both header and chat window
+    const errorTexts = screen.getAllByText('Server error');
+    expect(errorTexts.length).toBeGreaterThan(0);
   });
 });

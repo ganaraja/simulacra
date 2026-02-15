@@ -21,6 +21,9 @@ load_dotenv(_env_path)
 _CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").strip()
 CORS_ORIGINS_LIST = [o.strip() for o in _CORS_ORIGINS.split(",") if o.strip()] or ["http://localhost:3000", "http://127.0.0.1:3000"]
 
+# Get model from environment or use default
+GOOGLE_API_MODEL = os.getenv("GOOGLE_API_MODEL", "gemini-2.0-flash-exp")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,7 +69,7 @@ async def run_debate(max_exchange_rounds: int = 4) -> dict[str, Any]:
     Run the full debate and return the final state (messages, openings, reflections, summary).
     """
     try:
-        coordinator = DebateCoordinator(max_exchange_rounds=max_exchange_rounds)
+        coordinator = DebateCoordinator(model=GOOGLE_API_MODEL, max_exchange_rounds=max_exchange_rounds)
         state = await coordinator.run_debate()
         return state
     except RuntimeError as e:
