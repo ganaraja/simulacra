@@ -22,21 +22,15 @@ class TestPersona:
         assert p.id == PersonaId.ALEXANDER
         assert "conquest" in p.philosophy.lower() or "ambition" in p.philosophy.lower()
 
-    def test_summariser(self):
-        p = Persona.summariser()
-        assert p.id == PersonaId.SUMMARISER
-        assert "summar" in p.philosophy.lower()
-
     def test_arbitrator_philosophy(self):
         p = Persona.arbitrator()
         assert p.id == PersonaId.ARBITRATOR
-        assert "arbitrator" in p.philosophy.lower() or "neutral" in p.philosophy.lower()
+        assert "arbitrator" in p.philosophy.lower() or "consensus" in p.philosophy.lower()
 
-    def test_debaters_excludes_summariser_and_arbitrator(self):
+    def test_debaters_excludes_arbitrator(self):
         debaters = Persona.debaters()
         assert len(debaters) == 3
         ids = [p.id for p in debaters]
-        assert PersonaId.SUMMARISER not in ids
         assert PersonaId.ARBITRATOR not in ids
         assert PersonaId.NAPOLEON in ids
         assert PersonaId.GANDHI in ids

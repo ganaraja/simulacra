@@ -26,7 +26,7 @@ class TestDebateRun:
             "phase": "done",
             "messages": [{"author_id": "napoleon", "author_name": "Napoleon", "content": "Test.", "phase": "opening"}],
             "openings": {},
-            "summary": "Summary.",
+            "arbitration": "Consensus reached.",
         }
         with patch("backend.app.main.DebateCoordinator") as MockCoordinator:
             mock_instance = MockCoordinator.return_value
@@ -36,7 +36,7 @@ class TestDebateRun:
         data = r.json()
         assert data["phase"] == "done"
         assert "messages" in data
-        assert data["summary"] == "Summary."
+        assert data["arbitration"] == "Consensus reached."
 
     def test_run_debate_returns_503_when_adk_not_installed(self, client):
         # When DebateCoordinator raises RuntimeError (ADK not installed), we return 503.

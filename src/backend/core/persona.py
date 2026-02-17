@@ -10,7 +10,6 @@ class PersonaId(str, Enum):
     NAPOLEON = "napoleon"
     GANDHI = "gandhi"
     ALEXANDER = "alexander"
-    SUMMARISER = "summariser"
     ARBITRATOR = "arbitrator"
 
 
@@ -59,30 +58,21 @@ class Persona(BaseModel):
         )
 
     @classmethod
-    def summariser(cls) -> "Persona":
-        return cls(
-            id=PersonaId.SUMMARISER,
-            name="Summariser",
-            philosophy="Neutral summariser of debate positions and outcomes.",
-            icon_hint="summariser",
-        )
-
-    @classmethod
     def arbitrator(cls) -> "Persona":
         return cls(
             id=PersonaId.ARBITRATOR,
             name="Arbitrator",
             philosophy=(
                 "Impartial arbitrator who analyzes all perspectives, "
-                "identifies common ground, and guides the debate toward consensus. "
-                "Seeks to find balanced solutions that respect all viewpoints."
+                "identifies common ground, and brings all viewpoints to a balanced consensus. "
+                "Synthesizes the debate and proposes unified solutions that respect all positions."
             ),
             icon_hint="arbitrator",
         )
 
     @classmethod
     def debaters(cls) -> list["Persona"]:
-        """The three debate personas (excludes Summariser and Arbitrator)."""
+        """The three debate personas (excludes Arbitrator)."""
         return [cls.napoleon(), cls.gandhi(), cls.alexander()]
 
     @classmethod
@@ -92,7 +82,6 @@ class Persona(BaseModel):
             PersonaId.NAPOLEON: cls.napoleon(),
             PersonaId.GANDHI: cls.gandhi(),
             PersonaId.ALEXANDER: cls.alexander(),
-            PersonaId.SUMMARISER: cls.summariser(),
             PersonaId.ARBITRATOR: cls.arbitrator(),
         }
         return mapping[persona_id]

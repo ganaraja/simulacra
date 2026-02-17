@@ -1,6 +1,6 @@
 # Simulacra
 
-Multi-agent debate system: **Napoleon**, **Gandhi**, **Alexander**, **Arbitrator**, and **Summariser**. Built with Google ADK and FastMCP.
+Multi-agent debate system: **Napoleon**, **Gandhi**, **Alexander**, and **Arbitrator**. Built with Google ADK and FastMCP.
 
 ## Quick Start
 
@@ -34,7 +34,7 @@ From repo root:
 
 This runs all backend (pytest) and frontend (Jest) tests. Fix any failures before committing.
 
-**Backend tests** (30): `PYTHONPATH=src python3 -m pytest tests/ -v`  
+**Backend tests** (27): `PYTHONPATH=src python3 -m pytest tests/ -v`  
 **Frontend tests** (12): `cd src/frontend && npm run test`
 
 ### System Verification

@@ -30,7 +30,7 @@ describe('App', () => {
         messages: [
           { author_id: 'napoleon', author_name: 'Napoleon', content: 'Auto-started opening.', phase: 'opening' },
         ],
-        summary: 'Auto-started summary.',
+        arbitration: 'Auto-started arbitration.',
       }),
     });
     
@@ -40,7 +40,7 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByText('Auto-started opening.')).toBeInTheDocument();
     });
-    expect(screen.getByText('Auto-started summary.')).toBeInTheDocument();
+    expect(screen.getByText('Auto-started arbitration.')).toBeInTheDocument();
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 

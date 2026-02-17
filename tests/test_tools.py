@@ -11,8 +11,6 @@ from backend.tools.debate_tools import (
     advance_exchange_round,
     build_arbitration_prompt,
     record_arbitration,
-    build_summary_prompt,
-    record_summary,
 )
 
 
@@ -98,24 +96,6 @@ class TestAdvancePhase:
         assert state["exchange_rounds"] == 4  # capped at max
 
 
-class TestSummary:
-    def test_build_summary_prompt(self):
-        state = create_initial_state()
-        state["messages"] = [
-            {"author_id": "napoleon", "author_name": "Napoleon", "content": "X", "phase": "opening", "round_index": 0}
-        ]
-        prompt = build_summary_prompt(state)
-        assert "summar" in prompt.lower()
-        assert "Napoleon" in prompt or "standings" in prompt.lower()
-
-    def test_record_summary_sets_done(self):
-        state = create_initial_state()
-        state = advance_phase(state, "summary")
-        state = record_summary("All held their views.", state)
-        assert state["summary"] == "All held their views."
-        assert state["phase"] == "done"
-
-
 class TestArbitration:
     def test_build_arbitration_prompt_includes_transcript(self):
         state = create_initial_state()
@@ -124,14 +104,15 @@ class TestArbitration:
             {"author_id": "gandhi", "author_name": "Gandhi", "content": "Peace through non-violence.", "phase": "opening", "round_index": 0},
         ]
         prompt = build_arbitration_prompt(state)
-        assert "arbitrator" in prompt.lower() or "neutral" in prompt.lower()
+        assert "arbitrator" in prompt.lower() or "consensus" in prompt.lower()
         assert "Napoleon" in prompt or "Gandhi" in prompt
 
-    def test_record_arbitration_adds_message(self):
+    def test_record_arbitration_adds_message_and_sets_done(self):
         state = create_initial_state()
         state = advance_phase(state, "arbitration")
-        state = record_arbitration("Both perspectives have merit.", state)
-        assert state["arbitration"] == "Both perspectives have merit."
+        state = record_arbitration("Both perspectives have merit. A balanced consensus emerges.", state)
+        assert state["arbitration"] == "Both perspectives have merit. A balanced consensus emerges."
+        assert state["phase"] == "done"
         assert len(state["messages"]) == 1
         assert state["messages"][0]["author_id"] == "arbitrator"
         assert "merit" in state["messages"][0]["content"]

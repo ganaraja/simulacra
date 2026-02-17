@@ -8,21 +8,21 @@ describe('DebateView', () => {
       messages: [
         { author_id: 'napoleon', author_name: 'Napoleon', content: 'Hello.', phase: 'opening' },
       ],
-      summary: '',
+      arbitration: '',
     };
     render(<DebateView state={state} />);
     expect(screen.getByTestId('message-list')).toBeInTheDocument();
     expect(screen.getByText('Hello.')).toBeInTheDocument();
   });
 
-  it('renders summary when present', () => {
+  it('renders arbitration when present', () => {
     const state = {
       messages: [],
-      summary: 'All three held their positions.',
+      arbitration: 'All three perspectives can be unified through balanced governance.',
     };
     render(<DebateView state={state} />);
-    expect(screen.getByText('Summary')).toBeInTheDocument();
-    expect(screen.getByText('All three held their positions.')).toBeInTheDocument();
+    expect(screen.getByText('⚖️ Final Consensus')).toBeInTheDocument();
+    expect(screen.getByText('All three perspectives can be unified through balanced governance.')).toBeInTheDocument();
   });
 
   it('handles missing messages', () => {

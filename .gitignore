@@ -30,3 +30,7 @@ dist/
 .coverage
 htmlcov/
 .jest-cache/
+
+# Logs
+*.log
+

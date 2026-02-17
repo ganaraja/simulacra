@@ -21,8 +21,6 @@ from backend.tools.debate_tools import (
     record_reflection,
     build_arbitration_prompt,
     record_arbitration,
-    build_summary_prompt,
-    record_summary,
     advance_phase,
     advance_exchange_round,
 )
@@ -89,10 +87,8 @@ class DebateCoordinator:
         self.max_exchange_rounds = max_exchange_rounds
         # Single agent used for all persona generations (we pass persona via prompt)
         self._agent = Agent(
-            name="debate_speaker",
             model=self.model,
-            description="Generates debate statements in character.",
-            instruction="You respond only with the requested statement, in character, with no meta-commentary.",
+            name="debate_speaker",
         )
         self._session_service = InMemorySessionService()
         self._runner = Runner(
@@ -179,7 +175,7 @@ class DebateCoordinator:
 
     async def run_debate(self) -> dict[str, Any]:
         """
-        Run the full debate: opening -> defence -> exchange (3-4 rounds) -> reflection -> summary.
+        Run the full debate: opening -> defence -> exchange (3-4 rounds) -> reflection -> arbitration.
         Returns the final state dict.
         
         Includes delays between phases to avoid rate limiting.
@@ -236,23 +232,14 @@ class DebateCoordinator:
             )
             await asyncio.sleep(1)  # Small delay between personas
 
-        # 5. Arbitration: find consensus
-        logger.info("Starting arbitration phase")
+        # 5. Arbitration: bring all viewpoints to consensus (final phase)
+        logger.info("Starting arbitration phase - bringing viewpoints to consensus")
         state = advance_phase(state, "arbitration")
         await asyncio.sleep(2)  # Delay before starting new phase
         
         prompt = build_arbitration_prompt(state)
         arbitration_text = await self._run_turn(prompt)
         state = record_arbitration(arbitration_text.strip() or "(No arbitration)", state)
-
-        # 6. Summary
-        logger.info("Starting summary phase")
-        state = advance_phase(state, "summary")
-        await asyncio.sleep(2)  # Delay before starting new phase
-        
-        prompt = build_summary_prompt(state)
-        summary_text = await self._run_turn(prompt)
-        state = record_summary(summary_text.strip() or "(No summary)", state)
         
         logger.info("Debate completed successfully")
         return state

@@ -31,7 +31,6 @@ def _state_from_dict(data: dict[str, Any]) -> DebateState:
         max_exchange_rounds=data.get("max_exchange_rounds", 4),
         reflections=dict(data.get("reflections", {})),
         arbitration=data.get("arbitration", ""),
-        summary=data.get("summary", ""),
     )
 
 
@@ -54,7 +53,6 @@ def _state_to_dict(state: DebateState) -> dict[str, Any]:
         "max_exchange_rounds": state.max_exchange_rounds,
         "reflections": dict(state.reflections),
         "arbitration": state.arbitration,
-        "summary": state.summary,
     }
 
 
@@ -256,7 +254,7 @@ def record_reflection(persona_id: str, reflection_text: str, state_dict: dict[st
 
 def build_arbitration_prompt(state_dict: dict[str, Any]) -> str:
     """
-    Build the prompt for the Arbitrator to analyze and find consensus.
+    Build the prompt for the Arbitrator to analyze all viewpoints and bring them to consensus.
 
     Args:
         state_dict: Current state (all debate phases completed).
@@ -267,82 +265,45 @@ def build_arbitration_prompt(state_dict: dict[str, Any]) -> str:
     state = _state_from_dict(state_dict)
     transcript = state.transcript_for_context(limit=100)
     return (
-        "You are an impartial Arbitrator. Your role is to analyze all perspectives presented, "
-        "identify common ground, and guide toward a balanced consensus. "
-        "Review the debate between Napoleon, Gandhi, and Alexander. "
-        "Find areas of agreement, acknowledge valid points from each perspective, "
-        "and propose a balanced solution that respects all viewpoints. "
+        "You are an impartial Arbitrator. Your role is to synthesize all perspectives presented "
+        "and bring them to a balanced consensus. "
+        "Review the complete debate between Napoleon, Gandhi, and Alexander. "
+        "Identify common ground across all positions, acknowledge the valid merits of each viewpoint, "
+        "and propose a unified consensus that integrates the best elements from all perspectives. "
+        "Your goal is to find a solution that all parties can accept. "
         f"Full debate:\n\n{transcript}\n\n"
-        "Provide your arbitration (one paragraph): identify common ground, "
-        "acknowledge each perspective's merits, and propose a consensus path forward."
+        "Provide your final arbitration (one comprehensive paragraph): "
+        "synthesize all viewpoints, identify shared values, and present a consensus solution "
+        "that brings together the best of all perspectives."
     )
 
 
 def record_arbitration(arbitration_text: str, state_dict: dict[str, Any]) -> dict[str, Any]:
     """
-    Record the Arbitrator's consensus and advance to summary phase.
+    Record the Arbitrator's final consensus and mark debate as done.
 
     Args:
         arbitration_text: The arbitration content.
         state_dict: Current state.
 
     Returns:
-        Updated state dict with arbitration recorded.
+        Updated state dict with arbitration recorded and phase set to DONE.
     """
     state = _state_from_dict(state_dict)
     state.arbitration = arbitration_text
+    state.phase = RoundPhase.DONE
     persona = Persona.arbitrator()
     state.add_message(persona.id, persona.name, arbitration_text, RoundPhase.ARBITRATION, 0)
     return _state_to_dict(state)
 
 
-def build_summary_prompt(state_dict: dict[str, Any]) -> str:
-    """
-    Build the prompt for the Summariser to summarise standings.
-
-    Args:
-        state_dict: Current state (openings, defences, exchange, reflections).
-
-    Returns:
-        Instruction for the Summariser LLM.
-    """
-    state = _state_from_dict(state_dict)
-    transcript = state.transcript_for_context(limit=80)
-    return (
-        "You are a neutral Summariser. Summarise the debate standings: "
-        "what each of the three (Napoleon, Gandhi, Alexander) argued, "
-        "whether any shifted position in the reflection round, and a brief overall synthesis. "
-        f"Discussion:\n\n{transcript}\n\n"
-        "Provide a concise summary (one short paragraph)."
-    )
-
-
-def record_summary(summary_text: str, state_dict: dict[str, Any]) -> dict[str, Any]:
-    """
-    Record the Summariser's summary and mark debate done.
-
-    Args:
-        summary_text: The summary content.
-        state_dict: Current state.
-
-    Returns:
-        Updated state dict with phase DONE.
-    """
-    state = _state_from_dict(state_dict)
-    state.summary = summary_text
-    state.phase = RoundPhase.DONE
-    persona = Persona.summariser()
-    state.add_message(persona.id, persona.name, summary_text, RoundPhase.SUMMARY, 0)
-    return _state_to_dict(state)
-
-
 def advance_phase(state_dict: dict[str, Any], new_phase: str) -> dict[str, Any]:
     """
-    Advance the debate to a new phase (opening -> defence -> exchange -> reflection -> summary).
+    Advance the debate to a new phase (opening -> defence -> exchange -> reflection -> arbitration).
 
     Args:
         state_dict: Current state.
-        new_phase: One of 'defence', 'exchange', 'reflection', 'summary', 'done'.
+        new_phase: One of 'defence', 'exchange', 'reflection', 'arbitration', 'done'.
 
     Returns:
         Updated state dict with phase set.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-A debate system where three historical personas (Napoleon, Gandhi, Alexander) and a fourth Summariser agent interact over multiple rounds. The system uses Google Agent Development Kit (ADK) for orchestration and FastMCP for tool definition and serving.
+A debate system where three historical personas (Napoleon, Gandhi, Alexander) and an Arbitrator interact over multiple rounds. The Arbitrator synthesizes all perspectives and brings them to a balanced consensus. The system uses Google Agent Development Kit (ADK) for orchestration and FastMCP for tool definition and serving.
 
 ## Personas
 
@@ -11,8 +11,7 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 | Napoleon   | Conqueror | Wants to conquer the world for benevolence. Believes a single kingdom eliminates wars between kingdoms.    |
 | Gandhi     | Pacifist  | Spartan life, peace through low expectations, non-violence.                                                |
 | Alexander  | Ambition  | Motivated by pure ambition. Greatness lies in conquest; wars and death are acceptable in pursuit of glory. |
-| Arbitrator | Neutral   | Provides balanced analysis of arguments without taking sides. Evaluates merit of each position.            |
-| Summariser | Neutral   | Summarises debate standings; does not advocate a position.                                                 |
+| Arbitrator | Consensus | Impartial arbitrator who synthesizes all perspectives and brings viewpoints to a balanced consensus.       |
 
 ## Debate Flow
 
@@ -20,8 +19,7 @@ A debate system where three historical personas (Napoleon, Gandhi, Alexander) an
 2. **Defence round**: All openings are collected; each agent is asked to defend their position vigorously.
 3. **Exchange rounds**: The three agents interact with each other for 1 round (configurable).
 4. **Reflection round**: Each is asked whether, in light of the discussion, they would change their position and how.
-5. **Arbitration**: The Arbitrator provides a balanced analysis of all positions without taking sides.
-6. **Summary**: The Summariser summarises the debate standings.
+5. **Arbitration (Final)**: The Arbitrator synthesizes all perspectives, identifies common ground, and brings all viewpoints to a balanced consensus that integrates the best elements from each position.
 
 ## Technical Requirements
 

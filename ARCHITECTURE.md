@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Simulacra is a multi-agent debate system that orchestrates conversations between three historical personas (Napoleon, Gandhi, Alexander), a neutral Arbitrator, and a Summariser. The system uses Google's Agent Development Kit (ADK) for LLM orchestration and follows a tool-based architecture pattern.
+Simulacra is a multi-agent debate system that orchestrates conversations between three historical personas (Napoleon, Gandhi, Alexander) and an Arbitrator who synthesizes all perspectives and brings them to consensus. The system uses Google's Agent Development Kit (ADK) for LLM orchestration and follows a tool-based architecture pattern.
 
 ## High-Level Architecture
 
@@ -69,12 +69,12 @@ Simulacra is a multi-agent debate system that orchestrates conversations between
 │  │                   Core Logic                                │ │
 │  │  Persona Module:                                            │ │
 │  │    • PersonaId enum (napoleon, gandhi, alexander,          │ │
-│  │      arbitrator, summariser)                                │ │
+│  │      arbitrator)                                            │ │
 │  │    • Persona class with philosophy and display info        │ │
 │  │    • Factory methods for each persona                      │ │
 │  │  Debate Module:                                             │ │
 │  │    • RoundPhase enum (opening, defence, exchange,          │ │
-│  │      reflection, arbitration, summary, done)                │ │
+│  │      reflection, arbitration, done)                         │ │
 │  │    • DebateState: Full debate state with messages          │ │
 │  │    • DebateMessage: Individual message structure           │ │
 │  └─────────────────────────────────────────────────────────────┘ │
@@ -210,12 +210,9 @@ Initial State
     ↓ record_reflection (Gandhi)
     ↓ record_reflection (Alexander)
     ↓ advance_phase("arbitration")
-[Arbitration Phase]
+[Arbitration Phase - Final Consensus]
     ↓ record_arbitration (Arbitrator)
-    ↓ advance_phase("summary")
-[Summary Phase]
-    ↓ record_summary (Summariser)
-    ↓ advance_phase("done")
+    ↓ Phase set to DONE
 [Done]
 Final State
 ```
@@ -411,14 +408,14 @@ Final State
 
 ## Testing Architecture
 
-### Backend Tests (30 tests)
+### Backend Tests (27 tests)
 
-**Persona Tests** (6):
+**Persona Tests** (5):
 
 - Test persona factory methods
 - Test philosophy strings
 - Test arbitrator persona
-- Test debaters() excludes summariser and arbitrator
+- Test debaters() excludes arbitrator
 
 **DebateState Tests** (5):
 
@@ -427,11 +424,11 @@ Final State
 - Test opening/reflection storage
 - Test transcript generation
 
-**Tools Tests** (16):
+**Tools Tests** (14):
 
 - Test state creation
 - Test prompt building for each phase (including arbitration)
-- Test recording for each phase (including arbitration)
+- Test recording for each phase (including arbitration sets done)
 - Test phase advancement
 
 **API Tests** (3):

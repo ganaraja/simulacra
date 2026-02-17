@@ -6,20 +6,19 @@ const PERSONA_ICONS = {
   gandhi: '🕊️',
   alexander: '👑',
   arbitrator: '⚖️',
-  summariser: '📋',
 };
 
 export function DebateView({ state }) {
   const messages = state.messages || [];
-  const summary = state.summary || '';
+  const arbitration = state.arbitration || '';
 
   return (
     <>
       <MessageList messages={messages} personaIcons={PERSONA_ICONS} />
-      {summary && (
-        <div className="summary-block">
-          <h3>Summary</h3>
-          <p>{summary}</p>
+      {arbitration && (
+        <div className="arbitration-block">
+          <h3>⚖️ Final Consensus</h3>
+          <p>{arbitration}</p>
         </div>
       )}
     </>
